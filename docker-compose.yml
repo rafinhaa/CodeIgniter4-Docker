@@ -26,6 +26,7 @@ services:
         volumes: 
             - ./src:/var/www/html
             - ./apache_log:/var/log/apache2
+            - ./xdebug_log:/var/log/xdebug
         ports:
             - 80:80
         depends_on: 

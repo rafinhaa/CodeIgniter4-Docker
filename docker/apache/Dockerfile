@@ -1,4 +1,4 @@
-FROM php:7.4-apache
+FROM php:7.3-apache
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN apt-get update
 RUN apt-get install -y \
@@ -25,6 +25,18 @@ RUN docker-php-ext-install \
     pdo_mysql \
     mysqli
 
+RUN pecl channel-update pecl.php.net \
+	&& pecl install xdebug \
+	&& docker-php-ext-enable xdebug
+	
+RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20180731/xdebug.so" > /usr/local/etc/php/php.ini \
+    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_handler=dbgp" >>  /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.idekey=docker" >> /usr/local/etc/php/conf.d/xdebug.ini
+
 # 2. set up document root for apache
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
@@ -49,4 +61,4 @@ RUN useradd -G www-data,root -u $uid -d /home/devuser devuser
 RUN mkdir -p /home/devuser/.composer && \
     chown -R devuser:devuser /home/devuser
 
-EXPOSE 80
+EXPOSE 80 9003
