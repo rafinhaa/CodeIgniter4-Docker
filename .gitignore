@@ -1,3 +1,5 @@
 db_data/*
-src/*
 apache_log/*
+xdebug_log/*
+src/*
+!src/.vscode/launch.json
